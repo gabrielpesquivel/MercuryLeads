@@ -19,8 +19,13 @@ class Contact(db.Model):
     def __repr__(self):
         return f'<Contact {self.first_name} {self.last_name}>'
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
+    # Redirect to the leads database page
+    return redirect(url_for('leads'))
+
+@app.route('/leads', methods=['GET', 'POST'])
+def leads():
     if request.method == 'POST':
         # Retrieve data from the form
         first_name = request.form.get('first_name')
@@ -38,18 +43,24 @@ def index():
             )
             db.session.add(new_contact)
             db.session.commit()
-            return redirect(url_for('index'))
+            return redirect(url_for('leads'))
 
     # Query all contacts to display in the table
     contacts = Contact.query.all()
-    return render_template('index.html', contacts=contacts)
+    return render_template('leads.html', contacts=contacts)
+
+@app.route('/dashboard')
+def dashboard():
+    # Example dashboard: just show the total number of contacts
+    total_contacts = Contact.query.count()
+    return render_template('dashboard.html', total_contacts=total_contacts)
 
 @app.route('/delete/<int:contact_id>', methods=['POST'])
 def delete_contact(contact_id):
     contact = Contact.query.get_or_404(contact_id)
     db.session.delete(contact)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('leads'))
 
 if __name__ == '__main__':
     # Create database tables if they don't exist
