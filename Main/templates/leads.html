@@ -14,7 +14,11 @@
     
     <label for="email">Email:</label>
     <input type="email" id="email" name="email">
+
+    <label for "last_contacted">Last Contacted:</label>
+    <input type="date" id="last_contacted" name="last_contacted">
     
+    <label> Add </label>
     <input type="submit" value="Add Contact">
   </form>
 
@@ -27,6 +31,7 @@
         <th>Last Name</th>
         <th>Phone</th>
         <th>Email</th>
+        <th>Last Contacted</th>
         <th>Actions</th>
       </tr>
     </thead>
@@ -38,10 +43,19 @@
           <td>{{ contact.last_name }}</td>
           <td>{{ contact.phone }}</td>
           <td>{{ contact.email }}</td>
+          <td>{{ contact.last_contacted }}</td>
           <td>
+            <!-- Email Button -->
+            <form action="{{ url_for('email_contact', contact_id=contact.id) }}" method="post" style="display:inline; margin-left:5px;">
+              <button type="submit">Email</button>
+            </form>
+            <!-- Delete Button -->
             <form method="post" action="{{ url_for('delete_contact', contact_id=contact.id) }}" class="delete-form">
               <input type="submit" value="Delete">
             </form>
+
+
+
           </td>
         </tr>
       {% else %}
