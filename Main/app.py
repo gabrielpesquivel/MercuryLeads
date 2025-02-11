@@ -66,8 +66,13 @@ def leads():
 
 @app.route('/dashboard')
 def dashboard():
+    # Query all contacts and sort them by 'last_contacted' in ascending order
+    contacts = Contact.query.order_by(Contact.last_contacted.asc().nullsfirst()).limit(5).all()
+
     total_contacts = Contact.query.count()
-    return render_template('dashboard.html', total_contacts=total_contacts)
+    
+    return render_template('dashboard.html', total_contacts=total_contacts, least_recently_contacted=contacts)
+
 
 @app.route('/delete/<int:contact_id>', methods=['POST'])
 def delete_contact(contact_id):

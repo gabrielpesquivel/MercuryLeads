@@ -1,7 +1,25 @@
 {% extends "base.html" %}
+
 {% block title %}Dashboard{% endblock %}
+
 {% block content %}
   <h1>Dashboard</h1>
   <p>Total Contacts: {{ total_contacts }}</p>
-  <!-- Additional dashboard content can go here -->
+
+  <h2>Least Recently Contacted</h2>
+  <table border="1">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Last Contacted</th>
+    </tr>
+    {% for contact in least_recently_contacted %}
+      <tr>
+        <td>{{ contact.first_name }} {{ contact.last_name }}</td>
+        <td>{{ contact.email if contact.email else "No Email" }}</td>
+        <td>{{ contact.last_contacted if contact.last_contacted else "Never Contacted" }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
 {% endblock %}
