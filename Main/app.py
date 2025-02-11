@@ -1,13 +1,28 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail, Message
 import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 app = Flask(__name__)
+
 # Configure the SQLite database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///contacts.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'your_secret_key'  # Needed for flash messages
+
+# Configure Flask-Mail for SMTP
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'  # Use 'smtp.mailtrap.io' for testing
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USER')  # Store email credentials securely
+app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
 
 db = SQLAlchemy(app)
+mail = Mail(app)
 
 # Define the Contact model
 class Contact(db.Model):
@@ -23,20 +38,17 @@ class Contact(db.Model):
 
 @app.route('/')
 def index():
-    # Redirect to the leads database page
     return redirect(url_for('leads'))
 
 @app.route('/leads', methods=['GET', 'POST'])
 def leads():
     if request.method == 'POST':
-        # Retrieve data from the form
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
         phone = request.form.get('phone')
         email = request.form.get('email')
         last_contacted = request.form.get('last_contacted')
 
-        # Create and add a new contact if first name and last name are provided
         if first_name and last_name:
             new_contact = Contact(
                 first_name=first_name,
@@ -49,13 +61,11 @@ def leads():
             db.session.commit()
             return redirect(url_for('leads'))
 
-    # Query all contacts to display in the table
     contacts = Contact.query.all()
     return render_template('leads.html', contacts=contacts)
 
 @app.route('/dashboard')
 def dashboard():
-    # Example dashboard: just show the total number of contacts
     total_contacts = Contact.query.count()
     return render_template('dashboard.html', total_contacts=total_contacts)
 
@@ -68,17 +78,35 @@ def delete_contact(contact_id):
 
 @app.route('/email/<int:contact_id>', methods=['POST'])
 def email_contact(contact_id):
-    # Get the contact or return 404 if not found
     contact = Contact.query.get_or_404(contact_id)
-    # Update the last_contacted field to today's date.
-    # You can format the date as you wish; here we use YYYY-MM-DD.
-    contact.last_contacted = datetime.date.today().strftime("%Y-%m-%d")
-    db.session.commit()
-    # Redirect back to the leads page (or any other page)
+
+    if contact.email:
+        # Update last_contacted date
+        contact.last_contacted = datetime.date.today().strftime("%Y-%m-%d")
+        db.session.commit()
+
+        # Create and send the email
+        subject = "Follow-up Contact"
+        body = f"Hello {contact.first_name},\n\nThis is a follow-up email.\n\nBest regards,\n Mercury Innovation PTY LTD"
+
+        msg = Message(subject, sender=os.getenv('EMAIL_USER'), recipients=[contact.email])
+        msg.body = body
+
+        try:
+            mail.send(msg)
+            print("Email sent successfully!")
+            flash("Email sent successfully!", "success")
+        except Exception as e:
+            print(f"An error occurred: {str(e)}")
+            flash(f"Error sending email: {str(e)}", "danger")
+
+    else:
+        print("No email address found for this contact.")
+        flash("No email address found for this contact.", "warning")
+
     return redirect(url_for('leads'))
 
 if __name__ == '__main__':
-    # Create database tables if they don't exist
     with app.app_context():
         db.create_all()
     app.run(debug=True)
