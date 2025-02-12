@@ -37,6 +37,31 @@ class Project(db.Model):
     def __repr__(self):
         return f'<Project {self.name}>'
 
+@app.route('/delete_project/<int:project_id>', methods=['POST'])
+def delete_project(project_id):
+    project = Project.query.get_or_404(project_id)
+
+    # Delete the project from the database
+    db.session.delete(project)
+    db.session.commit()
+
+    flash(f"Project '{project.name}' deleted successfully.", "success")
+    return redirect(url_for('projects'))
+
+@app.route('/update_project/<int:project_id>', methods=['POST'])
+def update_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    new_action = request.form.get('new_action')
+
+    if new_action:
+        project.action_required = new_action
+        db.session.commit()
+        flash(f"Action for '{project.name}' updated successfully.", "success")
+    else:
+        flash("No action provided.", "warning")
+
+    return redirect(url_for('projects'))
+
 # Update Contact model to reference Project
 class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
