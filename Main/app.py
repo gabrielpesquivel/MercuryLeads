@@ -24,7 +24,20 @@ app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
 db = SQLAlchemy(app)
 mail = Mail(app)
 
-# Define the Contact model
+# Define the Project model
+class Project(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)  # Project Name
+    organisation = db.Column(db.String(100), nullable=False)
+    city = db.Column(db.String(100))
+    install_target = db.Column(db.String(100))  # Project installation target date
+    action_required = db.Column(db.String(200))  # Action needed
+    contacts = db.relationship('Contact', backref='project', lazy=True)  # Relationship with contacts
+
+    def __repr__(self):
+        return f'<Project {self.name}>'
+
+# Update Contact model to reference Project
 class Contact(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(100), nullable=False)
@@ -32,6 +45,7 @@ class Contact(db.Model):
     phone = db.Column(db.String(20))
     email = db.Column(db.String(100))
     last_contacted = db.Column(db.String(100))
+    project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=True)  # Link to a project
 
     def __repr__(self):
         return f'<Contact {self.first_name} {self.last_name}>'
@@ -48,6 +62,7 @@ def leads():
         phone = request.form.get('phone')
         email = request.form.get('email')
         last_contacted = request.form.get('last_contacted')
+        project_id = request.form.get('project_id')
 
         if first_name and last_name:
             new_contact = Contact(
@@ -55,14 +70,16 @@ def leads():
                 last_name=last_name,
                 phone=phone,
                 email=email,
-                last_contacted=last_contacted
+                last_contacted=last_contacted,
+                project_id=project_id if project_id else None
             )
             db.session.add(new_contact)
             db.session.commit()
             return redirect(url_for('leads'))
 
     contacts = Contact.query.all()
-    return render_template('leads.html', contacts=contacts)
+    projects = Project.query.all()  # Fetch projects for dropdown
+    return render_template('leads.html', contacts=contacts, projects=projects)
 
 @app.route('/dashboard')
 def dashboard():
@@ -72,7 +89,6 @@ def dashboard():
     total_contacts = Contact.query.count()
     
     return render_template('dashboard.html', total_contacts=total_contacts, least_recently_contacted=contacts)
-
 
 @app.route('/delete/<int:contact_id>', methods=['POST'])
 def delete_contact(contact_id):
@@ -110,6 +126,31 @@ def email_contact(contact_id):
         flash("No email address found for this contact.", "warning")
 
     return redirect(url_for('leads'))
+
+@app.route('/projects', methods=['GET', 'POST'])
+def projects():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        organisation = request.form.get('organisation')
+        city = request.form.get('city')
+        install_target = request.form.get('install_target')
+        action_required = request.form.get('action_required')
+
+        if name and organisation:
+            new_project = Project(
+                name=name,
+                organisation=organisation,
+                city=city,
+                install_target=install_target,
+                action_required=action_required
+            )
+            db.session.add(new_project)
+            db.session.commit()
+            return redirect(url_for('projects'))
+
+    # Query all projects
+    all_projects = Project.query.all()
+    return render_template('projects.html', projects=all_projects)
 
 if __name__ == '__main__':
     with app.app_context():

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+  <h1>Projects</h1>
+
+  <form method="post">
+    <label>Project Name:</label>
+    <input type="text" name="name" required>
+    <label>Organisation:</label>
+    <input type="text" name="organisation" required>
+    <label>City:</label>
+    <input type="text" name="city">
+    <label>Install Target Date:</label>
+    <input type="text" name="install_target">
+    <label>Action Required:</label>
+    <input type="text" name="action_required">
+    <button type="submit">Add Project</button>
+  </form>
+
+  <h2>Existing Projects</h2>
+  <table border="1">
+    <tr>
+      <th>Project Name</th>
+      <th>Organisation</th>
+      <th>City</th>
+      <th>Install Target</th>
+      <th>Action Required</th>
+      <th>Contacts</th>
+    </tr>
+    {% for project in projects %}
+      <tr>
+        <td>{{ project.name }}</td>
+        <td>{{ project.organisation }}</td>
+        <td>{{ project.city }}</td>
+        <td>{{ project.install_target if project.install_target else "N/A" }}</td>
+        <td>{{ project.action_required if project.action_required else "N/A" }}</td>
+        <td>
+          {% for contact in project.contacts %}
+            {{ contact.first_name }} {{ contact.last_name }} ({{ contact.email }})<br>
+          {% endfor %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
