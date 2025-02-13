@@ -25,6 +25,12 @@
       margin-right: 20px;
       font-size: 1.1em;
     }
+    .navbar b {
+      color: #e0e0e0;
+      text-decoration: none;
+      margin-right: 20px;
+      font-size: 1.5em;
+    }
     .navbar a:hover {
       color: #ffffff;
     }
@@ -83,6 +89,7 @@
 </head>
 <body>
   <div class="navbar">
+    <b href="">Home</b>
     <a href="{{ url_for('dashboard') }}">Dashboard</a>
     <a href="{{ url_for('leads') }}">Leads Database</a>
     <a href="{{ url_for('projects') }}">Projects</a>
