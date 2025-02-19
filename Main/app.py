@@ -24,13 +24,12 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = os.getenv('EMAIL_USER')
 app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
+app.config['VALID_USERNAME'] = os.getenv('VALID_USERNAME')
+app.config['VALID_PASSWORD'] = os.getenv('VALID_PASSWORD')
 
 db = SQLAlchemy(app)
 mail = Mail(app)
 
-# Login credentials (can be moved to environment variables for better security)
-VALID_USERNAME = "Mercury"
-VALID_PASSWORD = "leads"
 
 # Define a decorator to protect routes
 def login_required(f):
@@ -81,7 +80,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        if username == VALID_USERNAME and password == VALID_PASSWORD:
+        if username == os.getenv('VALID_USERNAME') and password == os.getenv('VALID_PASSWORD'):
             session['logged_in'] = True
             flash("Login successful!", "success")
             return redirect(url_for('dashboard'))
