@@ -48,9 +48,11 @@
       display: block;
       margin-top: 10px;
     }
-    input[type="text"], input[type="email"] {
+    input[type="text"], 
+    input[type="email"],
+    input[type="password"] { /* Add password field styling */
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 5px;
       border: 1px solid #333;
       border-radius: 3px;
@@ -85,15 +87,66 @@
     .delete-form {
       display: inline;
     }
+    /* Login Page Styling */
+    .login-container {
+      width: 300px;
+      margin: 100px auto;
+      padding: 20px;
+      background: #1e1e1e;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      text-align: center;
+    }
+    /* Style container for delete and update buttons */
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 8px; /* Space between buttons */
+        margin-bottom: 1px; /* Space between buttons and input box */
+    }
+
+    /* Ensures form elements in actions section stack correctly */
+    .action-container {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* Ensure input box is full width and properly styled */
+    .action-container input {
+        width: 100%;
+        padding: 5px;
+        margin-top: 1px;
+        border: 1px solid #333;
+        border-radius: 1px;
+        background-color: #333;
+        color: #fff;
+    }
+
+    /* Button Styling */
+    button {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 3px;
+    }
+
+    button:hover {
+        background-color: #555;
+    }
   </style>
 </head>
 <body>
+  {% if not request.endpoint == 'login' %}
   <div class="navbar">
-    <b href="">Home</b>
-    <a href="{{ url_for('dashboard') }}">Dashboard</a>
-    <a href="{{ url_for('leads') }}">Leads Database</a>
-    <a href="{{ url_for('projects') }}">Projects</a>
+      <b href="">Home</b>
+      <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a href="{{ url_for('leads') }}">Leads Database</a>
+      <a href="{{ url_for('projects') }}">Projects</a>
   </div>
+  {% endif %}
   <div class="container">
     {% block content %}
     {% endblock %}
