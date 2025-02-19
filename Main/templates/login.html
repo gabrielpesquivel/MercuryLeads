@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Contacts App{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Login</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p class="{{ category }}">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    <form method="POST">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+</div>
+{% endblock %}
