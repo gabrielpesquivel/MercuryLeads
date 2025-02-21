@@ -27,6 +27,8 @@ app.config['MAIL_PASSWORD'] = os.getenv('EMAIL_PASS')
 app.config['VALID_USERNAME'] = os.getenv('VALID_USERNAME')
 app.config['VALID_PASSWORD'] = os.getenv('VALID_PASSWORD')
 
+TIMEZONE_API = os.getenv('TIMEZONE_API')
+
 db = SQLAlchemy(app)
 mail = Mail(app)
 
@@ -155,7 +157,7 @@ def projects():
             return redirect(url_for('projects'))
 
     all_projects = Project.query.all()
-    return render_template('projects.html', projects=all_projects)
+    return render_template('projects.html', projects=all_projects, timezone_api=TIMEZONE_API)
 
 @app.route('/map')
 @login_required  # Ensure only logged-in users can access
