@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
-{% block title %}Map{% endblock %}
+{% block title %}Project Locations Map{% endblock %}
 
 {% block content %}
-  <h1>Interactive Map - Sydney</h1>
+  <h1>Project Locations</h1>
   
   <!-- Container for the map -->
   <div id="map"></div>
@@ -14,23 +14,56 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Initialize the map centered on Sydney, Australia
-        var map = L.map('map', { zoomControl: true }).setView([-33.8490, 150.9310], 13);
+        // Default map center (Smithfield, NSW)
+        var map = L.map('map', { zoomControl: true }).setView([-33.8490, 150.9310], 12);
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        // Add a marker for Smithfield
+        // Add a marker for Smithfield, NSW
         L.marker([-33.8490, 150.9310]).addTo(map)
             .bindPopup('Smithfield, NSW')
             .openPopup();
-        
-        // Add a marker for Sydney
-        L.marker([-33.8688, 151.2093]).addTo(map)
-            .bindPopup('Sydney, Australia')
-            .openPopup();
+
+
+        // Store projects as a JavaScript array
+        var projects = [
+            {% for project in projects %}
+                {
+                    name: "{{ project.name }}",
+                    organisation: "{{ project.organisation }}",
+                    city: "{{ project.city }}"
+                },
+            {% endfor %}
+        ];
+
+        // Function to convert a city name to coordinates
+        async function getCoordinates(city) {
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${city}`);
+            const data = await response.json();
+            if (data.length > 0) {
+                return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+            }
+            return null;  // Return null if no coordinates found
+        }
+
+        // Add markers dynamically for each project
+        async function addProjectMarkers() {
+            for (let project of projects) {
+                if (project.city) {
+                    const coords = await getCoordinates(project.city);
+                    if (coords) {
+                        L.marker(coords).addTo(map)
+                            .bindPopup(`<b>${project.name}</b><br>${project.organisation}<br>${project.city}`)
+                            .openPopup();
+                    }
+                }
+            }
+        }
+
+        addProjectMarkers();
 
         // Fix issue where map does not fully render
         setTimeout(() => {

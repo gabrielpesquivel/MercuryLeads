@@ -158,9 +158,11 @@ def projects():
     return render_template('projects.html', projects=all_projects)
 
 @app.route('/map')
-@login_required  # Ensures only logged-in users can access
+@login_required  # Ensure only logged-in users can access
 def map_page():
-    return render_template('map.html')
+    projects = Project.query.all()  # Fetch all projects
+    return render_template('map.html', projects=projects)
+
 
 @app.route('/delete/<int:contact_id>', methods=['POST'])
 @login_required
