@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Map{% endblock %}
+
+{% block content %}
+  <h1>Interactive Map - Sydney</h1>
+  
+  <!-- Container for the map -->
+  <div id="map"></div>
+
+  <!-- Include Leaflet.js Styles & Scripts -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Initialize the map centered on Sydney, Australia
+        var map = L.map('map', { zoomControl: true }).setView([-33.8490, 150.9310], 13);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Add a marker for Smithfield
+        L.marker([-33.8490, 150.9310]).addTo(map)
+            .bindPopup('Smithfield, NSW')
+            .openPopup();
+        
+        // Add a marker for Sydney
+        L.marker([-33.8688, 151.2093]).addTo(map)
+            .bindPopup('Sydney, Australia')
+            .openPopup();
+
+        // Fix issue where map does not fully render
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 500);
+    });
+  </script>
+
+  <style>
+    /* Ensure the map container has a defined height */
+    #map {
+      height: 500px;
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 10px;
+      display: block;
+    }
+
+    /* Fix layout issues */
+    html, body, .container {
+      height: 100%;
+    }
+  </style>
+{% endblock %}
