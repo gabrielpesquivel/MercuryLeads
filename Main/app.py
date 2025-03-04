@@ -223,7 +223,9 @@ def email_contact(contact_id):
 
     return redirect(url_for('leads'))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    from waitress import serve  # Use Waitress for production
+
     with app.app_context():
         db.create_all()
 
@@ -231,4 +233,5 @@ if __name__ == '__main__':
     with app.test_request_context():
         session.clear()
 
-    app.run(debug=True)
+    # Run with a production-ready server
+    serve(app, host="0.0.0.0", port=5000)
